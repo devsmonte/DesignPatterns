@@ -1,92 +1,74 @@
 # Explicação e exemplo de implementação.
+Aplique o padrão de projeto decorator para criar um sanduíche de frango assado com pepperoni e queijo mussarela
+ralado. O projeto deve seguir os seguintes critérios:
 
-Neste exemplo, temos uma classe abstrata Veiculo com um construtor e os métodos clone e represent. Em seguida, criamos duas subclasses, Carro e Moto, que estendem a classe Veiculo e implementam os métodos abstratos.
+* Deve imprimir no console: Sanduíche de Carne, Bacon, QueijoMussarelaRalado custa $7,49.
+* O sanduíche de frango assado custa $4,50. - o ingrediente adicional pepperoni custa $0,99.
+* O ingrediente adicional queijo mussarela ralado custa $2,00.
 
-A classe Aplicacao contém métodos para criar veículos, clonar veículos e imprimir a representação dos veículos. A criação dos veículos é feita no método criarVeiculos, onde são criados dois carros e duas motos. O método clonarVeiculos clona os veículos usando o método clone, e o método imprimirRepresentacao imprime a representação de cada veículo clonado.
+crie as classes necessárias: FrangoAssado, Pepperoni e QueijoMussarelaRalado.
+
 
 ```tsx
-abstract class Veiculo {
-  constructor(
-    public modelo: string,
-    public marca: string,
-    public cor: string,
-    public numeroRodas: number
-  ) {}
-
-  abstract clone(): Veiculo;
-  abstract represent(): void;
-}
-
-class Carro extends Veiculo {
-  constructor(
-    modelo: string,
-    marca: string,
-    cor: string,
-    numeroRodas: number,
-    public numeroPortas: number
-  ) {
-    super(modelo, marca, cor, numeroRodas);
-  }
-
-  clone(): Veiculo {
-    return new Carro(this.modelo, this.marca, this.cor, this.numeroRodas, this.numeroPortas);
-  }
-
-  represent(): void {
-    console.log(`Carro ${this.marca} ${this.modelo}, cor ${this.cor}, ${this.numeroRodas} rodas, ${this.numeroPortas} portas`);
-  }
-}
-
-class Moto extends Veiculo {
-  constructor(
-    modelo: string,
-    marca: string,
-    cor: string,
-    numeroRodas: number,
-    public cilindradas: number
-  ) {
-    super(modelo, marca, cor, numeroRodas);
-  }
-
-  clone(): Veiculo {
-    return new Moto(this.modelo, this.marca, this.cor, this.numeroRodas, this.cilindradas);
-  }
-
-  represent(): void {
-    console.log(`Moto ${this.marca} ${this.modelo}, cor ${this.cor}, ${this.numeroRodas} rodas, ${this.cilindradas} cilindradas`);
-  }
-}
-
-class Aplicacao {
-  static criarVeiculos(): Veiculo[] {
-    const veiculos: Veiculo[] = [];
-
-    const carro1 = new Carro("Sedan", "Toyota", "Azul", 4, 4);
-    const carro2 = new Carro("SUV", "Honda", "Vermelho", 4, 5);
-    const moto1 = new Moto("CBR600", "Honda", "Preto", 2, 600);
-    const moto2 = new Moto("Ninja 300", "Kawasaki", "Verde", 2, 300);
-
-    veiculos.push(carro1, carro2, moto1, moto2);
-
-    return veiculos;
-  }
-
-  static clonarVeiculos(veiculos: Veiculo[]): Veiculo[] {
-    const clones: Veiculo[] = [];
-    for (const veiculo of veiculos) {
-      clones.push(veiculo.clone());
+// Interface para o sanduíche
+class Sanduiche {
+    descricao() {
+      return "";
     }
-    return clones;
-  }
-
-  static imprimirRepresentacao(veiculos: Veiculo[]): void {
-    for (const veiculo of veiculos) {
-      veiculo.represent();
+  
+    preco() {
+      return 0.0;
     }
   }
-}
-
-const veiculos = Aplicacao.criarVeiculos();
-const clones = Aplicacao.clonarVeiculos(veiculos);
-Aplicacao.imprimirRepresentacao(clones);
+  
+  // Implementação do sanduíche de frango assado
+  class FrangoAssado extends Sanduiche {
+    descricao() {
+      return "Sanduíche de Frango Assado";
+    }
+  
+    preco() {
+      return 4.5;
+    }
+  }
+  
+  // Decorator para o pepperoni
+  class Pepperoni extends Sanduiche {
+    constructor(sanduiche) {
+      super();
+      this.sanduiche = sanduiche;
+    }
+  
+    descricao() {
+      return this.sanduiche.descricao() + ", Pepperoni";
+    }
+  
+    preco() {
+      return this.sanduiche.preco() + 0.99;
+    }
+  }
+  
+  // Decorator para o queijo mussarela ralado
+  class QueijoMussarelaRalado extends Sanduiche {
+    constructor(sanduiche) {
+      super();
+      this.sanduiche = sanduiche;
+    }
+  
+    descricao() {
+      return this.sanduiche.descricao() + ", Queijo Mussarela Ralado";
+    }
+  
+    preco() {
+      return this.sanduiche.preco() + 2.0;
+    }
+  }
+  
+  // Criando o sanduíche de frango assado com os decoradores
+  let sanduiche = new FrangoAssado();
+  sanduiche = new Pepperoni(sanduiche);
+  sanduiche = new QueijoMussarelaRalado(sanduiche);
+  
+  // Obtendo a descrição e o preço final do sanduíche
+  console.log(`${sanduiche.descricao()} custa $${sanduiche.preco().toFixed(2)}.`);
 ```
