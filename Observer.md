@@ -1,85 +1,102 @@
 # Explicação e exemplo de implementação.
-Aplique o padrão de projeto adapter para criar um adaptador que permita que um objeto do tipo Pato seja usado como se fosse um objeto do tipo
-Galinha. Use as classes AdaptadorPato e AdaptadorPatoDemo para demonstrar o uso da classe AdaptadorPato.
+Aplique o padrão de projeto Observer para criar um simples editor de texto. 
+
+- implementar uma subclasse da classe Editor chamada TextEditor;
+
+- aplicar o método insertLine, que recebe os parâmetros lineNumber e text;
+
+- inserir o texto na ordem correspondente a lineNumber e deslocar as linhas posteriores se necessário;
+  
+- aplicar o método removeLine, que recebe lineNumber como parâmetro, deleta o texto da linha correspondente e desloca as linhas posteriores se necessário;
+
+-instanciar um TextEditor e disparar o evento “open”;
+
+- receber as linhas de texto, que serão inseridas no objeto texteditor, do usuário até que ele envie o texto “EOF”, que não deve ser inserido no objeto textEditor,
+
+- por fim, o texteditor deve disparar o evento “save” para que o conteúdo seja salvo no arquivo configurado e imprimir todo o conteúdo do arquivo na tela.
 
 
 ```tsx
-// Interface Strategy
-class Strategy {
-  execute(num1, num2) {}
-}
+// Classe Observer
+class Observer {
+  constructor() {
+    this.observers = [];
+  }
 
-// Classe concreta para a operação de soma
-class Soma extends Strategy {
-  execute(num1, num2) {
-    return num1 + num2;
+  subscribe(fn) {
+    this.observers.push(fn);
+  }
+
+  unsubscribe(fnToRemove) {
+    this.observers = this.observers.filter(fn => fn !== fnToRemove);
+  }
+
+  notify(data) {
+    this.observers.forEach(fn => fn(data));
   }
 }
 
-// Classe concreta para a operação de subtração
-class Subtracao extends Strategy {
-  execute(num1, num2) {
-    return num1 - num2;
+// Classe Editor
+class Editor {
+  constructor() {
+    this.content = [];
+    this.events = new Observer();
+  }
+
+  insertLine(lineNumber, text) {
+    this.content.splice(lineNumber - 1, 0, text);
+    this.events.notify({ action: 'insertLine', content: this.content });
+  }
+
+  removeLine(lineNumber) {
+    this.content.splice(lineNumber - 1, 1);
+    this.events.notify({ action: 'removeLine', content: this.content });
+  }
+
+  open() {
+    this.events.notify({ action: 'open', content: this.content });
+  }
+
+  save() {
+    this.events.notify({ action: 'save', content: this.content });
   }
 }
 
-// Classe concreta para a operação de multiplicação
-class Multiplicacao extends Strategy {
-  execute(num1, num2) {
-    return num1 * num2;
-  }
-}
-
-// Contexto da calculadora
-class Calculadora {
-  constructor(strategy) {
-    this.strategy = strategy;
+// Subclasse TextEditor
+class TextEditor extends Editor {
+  constructor() {
+    super();
+    this.events.subscribe(this.logContent.bind(this));
   }
 
-  setStrategy(strategy) {
-    this.strategy = strategy;
-  }
-
-  executarOperacao(num1, num2) {
-    return this.strategy.execute(num1, num2);
+  logContent(data) {
+    if (data.action === 'open' || data.action === 'save') {
+      console.log("Conteúdo do arquivo:");
+      console.log(data.content.join('\n'));
+    }
   }
 }
 
 // Função para receber entrada do usuário
 function getUserInput(promptMessage) {
-  return parseInt(prompt(promptMessage));
+  return prompt(promptMessage);
 }
 
 // Função principal
 function main() {
-  const num1 = getUserInput("Digite o primeiro número: ");
-  const num2 = getUserInput("Digite o segundo número: ");
-  const operacao = prompt("Digite a operação (+ para soma, - para subtração, * para multiplicação): ");
+  const textEditor = new TextEditor();
+  textEditor.open();
 
-  let strategy;
+  let line = getUserInput("Digite uma linha de texto (ou 'EOF' para terminar): ");
 
-  // Definindo a estratégia com base na operação informada
-  switch (operacao) {
-    case '+':
-      strategy = new Soma();
-      break;
-    case '-':
-      strategy = new Subtracao();
-      break;
-    case '*':
-      strategy = new Multiplicacao();
-      break;
-    default:
-      console.log("Operação inválida.");
-      return;
+  while (line !== 'EOF') {
+    textEditor.insertLine(textEditor.content.length + 1, line);
+    line = getUserInput("Digite uma linha de texto (ou 'EOF' para terminar): ");
   }
 
-  const calculadora = new Calculadora(strategy);
-  const resultado = calculadora.executarOperacao(num1, num2);
-
-  console.log(`O resultado da operação é: ${resultado}`);
+  textEditor.save();
 }
 
-// Chamada da função principal para iniciar a aplicação
+// Chamada da função principal para iniciar o editor de texto
 main();
 ```
