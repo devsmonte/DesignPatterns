@@ -4,60 +4,82 @@ Galinha. Use as classes AdaptadorPato e AdaptadorPatoDemo para demonstrar o uso 
 
 
 ```tsx
-// Interface Galinha
-class Galinha {
-  cacarejar() {
-    return "Cocoricó!";
-  }
+// Interface Strategy
+class Strategy {
+  execute(num1, num2) {}
+}
 
-  bicar() {
-    return "Bicando milho.";
+// Classe concreta para a operação de soma
+class Soma extends Strategy {
+  execute(num1, num2) {
+    return num1 + num2;
   }
 }
 
-// Implementação do Pato
-class Pato {
-  grasnar() {
-    return "Quack!";
-  }
-
-  voar() {
-    return "Voando alto.";
+// Classe concreta para a operação de subtração
+class Subtracao extends Strategy {
+  execute(num1, num2) {
+    return num1 - num2;
   }
 }
 
-// Adapter para adaptar um Pato para se comportar como Galinha
-class AdaptadorPato extends Galinha {
-  constructor(pato) {
-    super();
-    this.pato = pato;
-  }
-
-  cacarejar() {
-    return this.pato.grasnar(); // Adaptando o grasnar do Pato para o cacarejar da Galinha
-  }
-
-  bicar() {
-    return "Bicando ração."; // Comportamento de bicar diferente da Galinha, apenas para exemplo
+// Classe concreta para a operação de multiplicação
+class Multiplicacao extends Strategy {
+  execute(num1, num2) {
+    return num1 * num2;
   }
 }
 
-// Demo para demonstrar o uso da classe AdaptadorPato
-class AdaptadorPatoDemo {
-  static executar() {
-    const pato = new Pato();
-    const adaptador = new AdaptadorPato(pato);
+// Contexto da calculadora
+class Calculadora {
+  constructor(strategy) {
+    this.strategy = strategy;
+  }
 
-    console.log("Comportamento do Pato:");
-    console.log(`Grasnando: ${pato.grasnar()}`);
-    console.log(`Voando: ${pato.voar()}`);
+  setStrategy(strategy) {
+    this.strategy = strategy;
+  }
 
-    console.log("\nUsando o AdaptadorPato como se fosse uma Galinha:");
-    console.log(`Cacarejando: ${adaptador.cacarejar()}`);
-    console.log(`Bicando: ${adaptador.bicar()}`);
+  executarOperacao(num1, num2) {
+    return this.strategy.execute(num1, num2);
   }
 }
 
-// Executando a demonstração
-AdaptadorPatoDemo.executar();
+// Função para receber entrada do usuário
+function getUserInput(promptMessage) {
+  return parseInt(prompt(promptMessage));
+}
+
+// Função principal
+function main() {
+  const num1 = getUserInput("Digite o primeiro número: ");
+  const num2 = getUserInput("Digite o segundo número: ");
+  const operacao = prompt("Digite a operação (+ para soma, - para subtração, * para multiplicação): ");
+
+  let strategy;
+
+  // Definindo a estratégia com base na operação informada
+  switch (operacao) {
+    case '+':
+      strategy = new Soma();
+      break;
+    case '-':
+      strategy = new Subtracao();
+      break;
+    case '*':
+      strategy = new Multiplicacao();
+      break;
+    default:
+      console.log("Operação inválida.");
+      return;
+  }
+
+  const calculadora = new Calculadora(strategy);
+  const resultado = calculadora.executarOperacao(num1, num2);
+
+  console.log(`O resultado da operação é: ${resultado}`);
+}
+
+// Chamada da função principal para iniciar a aplicação
+main();
 ```
